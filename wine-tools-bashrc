@@ -24,8 +24,7 @@
 #	fi
 #
 
-export XDG_DATA_HOME=${XDG_DATA_HOME:-"$HOME"/.local}
-export WINEBOTTLEHOME=${WINEBOTTLEHOME:-"$XDG_DATA_HOME"/share/wineprefixes}
+export WINEBOTTLEHOME=${WINEBOTTLEHOME:-"${XDG_DATA_HOME:-"$HOME"/.local/share}"/wineprefixes}
 
 wine-cd() {
 	local bottle="$1"

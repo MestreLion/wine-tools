@@ -21,8 +21,7 @@ exec 3> /dev/null # to avoid harcoding /dev/null everywhere. For tools' stderr.
 
 SELF="${0##*/}" # buitin $(basename $0)
 
-XDG_DATA_HOME=${XDG_DATA_HOME:-"$HOME"/.local}
-WINEBOTTLEHOME=${WINEBOTTLEHOME:-"$XDG_DATA_HOME"/share/wineprefixes}
+WINEBOTTLEHOME=${WINEBOTTLEHOME:-"${XDG_DATA_HOME:-"$HOME"/.local/share}"/wineprefixes}
 
 confirm()
 {
