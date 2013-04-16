@@ -1,0 +1,96 @@
+# wine-tools-bashrc - smaller tools and bash completion for wine-tools
+#
+#    Copyright (C) 2011 Rodrigo Silva - <linux@rodrigosilva.com>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# This file is NOT meant to be executed, but sourced by ~/.bashrc
+# To use, add these lines to ~/.bashrc:
+#
+#	if [ -d "/path/to/wine-tools" ] ; then
+#	    PATH="$PATH:/path/to/wine-tools"
+#	    source "/path/to/wine-tools/wine-tools-bashrc"
+#	fi
+#
+
+export XDG_DATA_HOME=${XDG_DATA_HOME:-"$HOME"/.local}
+export WINEBOTTLEHOME=${WINEBOTTLEHOME:-"$XDG_DATA_HOME"/share/wineprefixes}
+
+wine-cd() {
+	local bottle="$1"
+	if [[ -z "$bottle" || "$bottle" = "default" ]] ; then
+		# default prefix
+		cd "$HOME/.wine/drive_c"
+	else
+		cd "$WINEBOTTLEHOME/$bottle/drive_c"
+	fi
+}
+
+wine-list() {
+	ls "$@" "$WINEBOTTLEHOME"
+}
+
+wine-cmd() {
+	local bottle="$1"
+	local cmd="$2"
+
+	if [[ -z "$bottle" || "$bottle" = "default" ]] ; then
+		# default prefix
+		prefix="$HOME/.wine"
+	else
+		prefix="$WINEBOTTLEHOME/$bottle"
+	fi
+	if [[ -z "$cmd" ]] ; then
+		echo "Usage: wine-cmd BOTTLE COMMAND"
+		echo ""
+		echo "wine-cmd: error: please specify the command to run"
+	else
+		shift; shift
+		env WINEPREFIX="$prefix" wine "$cmd" "$@"
+	fi
+}
+
+wine-install() {
+	wine-cmd "$1" "uninstaller" 2>/dev/null
+}
+
+wine-run() {
+	local app="$1"
+	local prefix
+
+	if [ -z "$app" ] ; then
+		echo "Usage: wine-run APP"
+		echo ""
+		echo "wine-run: error: please specify the application to run"
+	else
+		if [ ! -d "$WINEBOTTLEHOME/$app" ] ; then
+			# default prefix
+			prefix="$HOME/.wine"
+		else
+			prefix="$WINEBOTTLEHOME/$app"
+		fi
+		env WINEPREFIX="$prefix" wine cmd /c c:\run-$app.bat
+	fi
+}
+
+# bash completion
+_winebottles()
+{
+        local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        COMPREPLY=($( compgen -W "$(for x in "$WINEBOTTLEHOME"/*; do [[ -d "$x" ]] && echo $(basename "$x"); done)" -- $cur ) )
+}
+complete -F _winebottles wine-delete wine-cmd wine-install wine-cd
