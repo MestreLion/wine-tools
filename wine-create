@@ -4,9 +4,8 @@
 # 	- Remove z: symlink to /
 #	- Create d: symlink to /dados
 
-basedir=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
-[[ -r "$basedir/lib/common" ]] && source "$basedir/lib/common"
-[[ -r "$basedir/lib/wine"   ]] && source "$basedir/lib/wine"
+commonlib="$(dirname "$(readlink -f "$0")")/wine-tools-common"
+if [[ -r "$commonlib" ]]; then source "$commonlib"; fi
 
 # input
 prefix="$1"

@@ -2,9 +2,8 @@
 
 # Delete a wine prefix
 
-basedir=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
-if [ -r "$basedir/lib/common" ]; then source "$basedir/lib/common" ; fi
-if [ -r "$basedir/lib/wine"   ]; then source "$basedir/lib/wine"   ; fi
+commonlib="$(dirname "$(readlink -f "$0")")/wine-tools-common"
+if [[ -r "$commonlib" ]]; then source "$commonlib"; fi
 
 # input
 prefix="$1"
