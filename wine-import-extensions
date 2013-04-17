@@ -547,8 +547,11 @@ while IFS=$'\t' read -r -s ext mimetype class handler; do
 		RegistryAddAssoc "$ext"   "$class" "$mimetype"
 		output+=$'\n\n'
 
-	# See if class has no handler or is a forced extension
-	elif [[ -z "$handler" || ",${OVERWRITE}," = *",${ext},"* ]]; then
+	# See if class has no handler or if extension is either forced or our own
+	elif [[ -z "$handler" ||
+	        ",${OVERWRITE}," = *",${ext},"* ||
+	        "$class" = "$CLASSTAG"*
+	        ]]; then
 
 		# avoid duplicate classes (eg, both mht and mhtml point to mhtmlfile)
 		if [[ "$'\t'$classes" = *"$'\t'${class}$'\t'"* ]]; then
