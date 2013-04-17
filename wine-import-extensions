@@ -45,10 +45,10 @@ PREFIX=
 UNDO=
 
 #parameters
-VERBOSE=
+VERBOSE=1
 TEST=
 DEBUG=
-GUI=
+GUI=1
 
 #constants
 CLASSTAG="WineImportedExtension"
@@ -149,7 +149,7 @@ Usage ()
 
 	Options:
 	 -h, --help     print this message and exit
-	 -v, --verbose  verbose output (displays extra information)
+	 -q, --quiet    suppress informative messages (only displays errors)
 	 -t, --test     simulation test, do not change wine registry
 	 -d, --debug    displays debug information on parsed options and arguments
 
@@ -189,10 +189,9 @@ Usage ()
 	     file handler in wine. Opposite of -o. List must be comma-delimited, EXT
 	     must be the extension without any dots or asterisks. Ex: --skip dll,cpl
 
-	 -g, --gui
-	     Instead of winebroswer, register an alternate handler, created
-	     on-the-fly, called winebrowser-gui. It uses GUI (zenity) for errors
-	     (file not found and default application not registered)
+	 -G, --no-gui
+	     Instead of the default GUI handler, register an alternate, simpler
+	     handler that does not display any dialogs.
 
 	 -r, --restore FILE
 	     Restores a backup registry file previously created with --backup option
@@ -216,9 +215,9 @@ Usage ()
 
 
 	Examples and suggested uses:
-	$SELF -vd --test --bottle test --backup system.reg.bak --list ext.txt
-	$SELF -vd --test --bottle test --savechanges import.reg \\
-	                 --gui --overwrite gif,jpg,png,txt --skip cpl,dll,lnk,msi
+	$SELF --debug --test --bottle test --backup system.reg.bak --list ext.txt
+	$SELF --debug --test --bottle test --savechanges import.reg \\
+	      --overwrite gif,jpg,png,txt --skip cpl,dll,lnk,msi
 
 
 	Author: Rodrigo Silva (MestreLion) <linux@rodrigosilva.com>
@@ -390,9 +389,9 @@ Undo()
 
 #######################################  Command Line parsing
 
-long="help,verbose,test,debug,gui,bottle:,prefix:,savechanges:,overwrite:,skip:,
+long="help,quiet,test,debug,no-gui,bottle:,prefix:,savechanges:,overwrite:,skip:,
 backup:,restore:,list:,undo:"
-GETOPT=$(getopt --alternative --name="$SELF" --options="vtdgb:k:c:"            \
+GETOPT=$(getopt --alternative --name="$SELF" --options="qtdGb:k:c:"            \
                 --longoptions="$long" -- "$@"
 ) || { Usage ; exit 1; } # error in getopt
 
@@ -402,10 +401,10 @@ while true ; do
 	arg="$1"
 	shift
 	case "$arg" in
-	-v|--verbose    ) VERBOSE=1              ;; # Set verbose
+	-q|--quiet      ) VERBOSE=               ;; # Unset verbose flag
 	-t|--test       ) TEST=1                 ;; # Set simulation test
 	-d|--debug      ) DEBUG=1                ;; # Set debug mode
-	-g|--gui        ) GUI=1                  ;; # Set GUI flag
+	-G|--no-gui     ) GUI=                   ;; # Unset GUI flag
 	-p|--prefix     ) PREFIX="$1"   ; shift  ;; # Set Wine prefix
 	-b|--bottle     ) BOTTLE="$1"   ; shift  ;; # Set Wine Bottle
 	-c|--savechanges) REGFILE="$1"  ; shift  ;; # Set Registry change file
@@ -623,7 +622,7 @@ fi
 exit 0
 
 
-# Sample outputs:
+# Sample outputs (possibly outdated):
 
 #rodrigo@desktop ~ $ wine-import-extensions -vdt -b test -k sys.reg.bak -l ext.txt
 #Parsed Options  = -v -d --test -b 'test' -k 'sys.reg.bak' --list 'ext.txt' --
