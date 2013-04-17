@@ -20,13 +20,6 @@
 # Huge thanks for all the gurus and friends in irc://irc.freenet.org/#bash
 # and the contributors of http://mywiki.wooledge.org/
 #
-# FIXME: inhibit winemenubuilder for exts that have multiple mime-types. It is a
-#  corner case where winemenubuilder might choose a different mime than I did.
-#  Currently I (must) sort and de-dupe user+sys globs, while wmb just picks the
-#  first match in user+sys (no sort, no de-dupe). Also my de-dupe of native exts
-#  must be done *before* filtering by installed native apps, since wmb might
-#  choose mine that has no installed native app, which is currently not in my
-#  natives list (case in point: js and sdp)
 # FIXME: Properly handle cases in exts and mime-types. Windows might be case-
 #  insensitive but winemenubuilder is not. And it is buggy about it.
 # TODO: undo option (from changes file)
@@ -59,7 +52,7 @@ GUI=
 
 #constants
 CLASSTAG="WineImportedExtension"
-REGEX='\.[[:alnum:]_+%~-]+'
+regex='\\.[[:alnum:]_+%~-]+'
 xdg_data_home=${XDG_DATA_HOME:-"$HOME"/.local/share}
 xdg_data_dirs=${XDG_DATA_DIRS:-/usr/local/share:/usr/share}
 winebottlehome=${WINEBOTTLEHOME:-"$xdg_data_home"/wineprefixes}
@@ -444,21 +437,17 @@ export LC_ALL=C
 # Native extensions (freedesktop.org xdg mime database globs)
 # Format: <NUMBER>:$mimetype:$glob
 native_ext=$(
-	xdg_data_cat "mime/globs2" |
-	awk -F: '
-		$3~/^\*'"$REGEX"'$/ && !/^#/ {
-			print substr($3,3) "\t" $2
+	xdg_data_cat "mime/globs" |
+	awk -F: -v regex="$regex" '
+		$2 ~ "^\\*" regex "$" && $1 !~ /^#/ {
+			ext = substr($2,3)
+			lext = tolower(ext)
+			if (native[lext]=="") {
+				native[lext] = $1
+				print ext "\t" $1
+			}
 		}' |
-	perl -e '
-		use strict; use warnings;
-		use File::MimeInfo::Magic; use File::MimeInfo::Applications;
-		while (my $line = <STDIN>) {
-			chomp($line);
-			my ($ext, $mime) = (split/\t/, $line);
-			my ($def, @apps) = mime_applications_all($mime);
-			print "$line\n" if ($def || @apps)
-		}' |
-	sort --unique --ignore-case
+	sort --ignore-case
 ) 2>&3
 
 [[ "$VERBOSE" ]] && printf "%4d %s\n" $(wc -l <<< "$native_ext")               \
@@ -470,8 +459,8 @@ native_ext=$(
 # Format:
 # [Software\\Classes\\.$ext]<BLANK><NUMBER>
 # @="$class"
-wine_ext=$( { awk -F= '
-                  tolower($0)~/^\[software\\\\classes\\\\'"$REGEX"'\]/ {
+wine_ext=$( { awk -F= -v regex="$regex" '
+                  tolower($0)~"^\\[software\\\\\\\\classes\\\\\\\\" regex "]" {
                       split($0,a,/[].]/)
                       ext=a[2]
                       next
@@ -539,13 +528,6 @@ while IFS=$'\t' read -r -s ext mimetype class handler; do
 	# Skip undesirable extensions
 	[[ ",${SKIP}," = *",${ext},"* ]] && { (( n_skp++ )); continue; }
 
-	# Skip duplicate extensions (with different mime-types, like ogg)
-	if [[ "$prev_ext" = "$ext" ]]; then
-		(( n_mim++ )); continue;
-	else
-		prev_ext=$ext
-	fi
-
 
 	# See if extension has no class
 	if [[ -z "$class" ]]; then
@@ -582,13 +564,10 @@ done < <(                                                                      \
 	printf "%4d %s\n" $n_cls "classes lacking file handler will be added (A ∩ B) \ C"
 
 	[[ "$n_ovr" -gt 0 ]] && printf "%4d %s\n" $n_ovr                       \
-	  "classes with file handler will be overwrited"
+	  "classes with file handler will be overwritten"
 
 	[[ "$n_skp" -gt 0 ]] && printf "%4d %s\n" $n_skp                       \
 	  "extensions were skipped by user request"
-
-	[[ "$n_mim" -gt 0 ]] && printf "%4d %s\n" $n_mim                       \
-	  "extensions were duplicate with multiple mime-types and were ignored"
 
 	[[ "$n_dup" -gt 0 ]] && printf "%4d %s\n     %s\n" $n_dup              \
 	  "classes were duplicate and thus ignored"                            \
