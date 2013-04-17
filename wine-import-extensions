@@ -273,21 +273,31 @@ SetupExecutable()
 	appname="${executable##*/}"
 	appname="${appname%%\.*}"
 
-	icon="$(crc16 "$winexec")_${appname}.0" # pray index will always be 0
+	icon="$(crc16 "$winexec")_${appname}.0"  # pray index will always be 0
 
 	[[ "$GUI" && ! "$TEST" ]] || return
 
-	# Since gvfs-open (used by xdg-open in modern Gnome) does not signal failure
-	# when no application is found to open a given extension, we cannot use $?
-	# to test xdg-open success. Must trust a silent execution for that.
-	cat > "$executable" <<-_WINEBROWSERGUI
-		#!/bin/bash
-		error=\$(xdg-open "\$(wine winepath -u "\$1")" 2>&1)
-		error=\${error##*:}
-		if [[ "\$error" ]] ; then
-			zenity --error --no-wrap --text="\${error//&/&amp;}"
-			exit 1
-		fi
+	cat > "$executable" <<-'_WINEBROWSERGUI'
+	#!/bin/bash
+	file=$(wine winepath -u "$1")
+	winfile=${1//\\/\\\\}
+	if ! xdg-open "$file"; then
+	    mimetype=$(mimetype --brief "$file")
+	    description=$(mimetype --brief --describe "$file")
+	    msg="<big>Could not open <b>$winfile</b></big>\n\n"
+	    msg+="There is no application installed for <b>$description</b> files.\n"
+	    msg+="Do you want to search for an application to open this file?"
+	    if zenity --question --no-wrap --text "$msg"; then
+	        dbus-send --session --type=method_call --print-reply   \
+	            --dest=org.freedesktop.PackageKit                  \
+	            /org/freedesktop/PackageKit                        \
+	            org.freedesktop.PackageKit.Modify.InstallMimeTypes \
+	            int32:0                                            \
+	            array:string:"$mimetype"                           \
+	            string:"" &&
+	        xdg-open "$file"
+	    fi
+	fi
 	_WINEBROWSERGUI
 	[[ $? -eq 0 ]] || fatal "Could not create $executable"
 	chmod +x "$executable"
