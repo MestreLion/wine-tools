@@ -552,8 +552,8 @@ while IFS=$'\t' read -r -s ext mimetype class; do
 		output+=$'\n\n'
 	fi
 
-done < <(                                                                      \
-  join -a1 -t$'\t' -i -o1.1,1.2,2.2 <(echo "$native_ext") <(echo "$wine_ext") |\
+done < <(
+  join -a1 -t$'\t' -i -o1.1,1.2,2.2 <(echo "$native_ext") <(echo "$wine_ext") |
   sort --ignore-case
 )
 
