@@ -42,5 +42,5 @@ else
 	# delete prefix
 	#rm -rf "$WINEBOTTLEHOME/$prefix"/* #delete content even if bottle is symlink to dir
 	rm -rf "$WINEBOTTLEHOME/$prefix"
-	[[ -n "$VERBOSE" ]] && echo "wine prefix $WINEBOTTLEHOME/$prefix was removed."
+	if [[ "$VERBOSE" ]]; then echo "wine prefix $WINEBOTTLEHOME/$prefix was removed."; fi
 fi

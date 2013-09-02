@@ -51,5 +51,5 @@ else
 	# add link to /dados
 	ln -s /dados "$bottle/dosdevices/d:"
 
-	[[ "$VERBOSE" ]] && echo "wine prefix $bottle was created."
+	if [[ "$VERBOSE" ]]; then echo "wine prefix $bottle was created."; fi
 fi
