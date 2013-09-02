@@ -510,11 +510,11 @@ while IFS=$'\t' read -r -s ext mimetype class; do
 
 	[[ "$LIST" ]] && {
 		if [[ "${LIST##*.}" = "ods" ]]; then
-			printf "\"%s\"\t\"%s\"\t\"%s\"\t\"%s\"\n"             \
-	               "$ext" "$mimetype" "$class" "$handler" >> "$LIST"
+			printf "\"%s\"\t\"%s\"\t\"%s\"\n"                      \
+	               "$ext" "$mimetype" "$class" >> "$LIST"
 		else
-			printf "%s\t%s\t%s\t%s\n"                             \
-	               "$ext" "$mimetype" "$class" "$handler" >> "$LIST"
+			printf "%s\t%s\t%s\n"                                  \
+	               "$ext" "$mimetype" "$class" >> "$LIST"
 		fi
 	}
 
