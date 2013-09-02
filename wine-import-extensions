@@ -53,7 +53,7 @@ GUI=1
 
 #constants
 CLASSTAG="WineImportedExtension"
-regex='\\.[[:alnum:]_+%~-]+'
+regex='\\.[0-9A-Za-z_+%~-]+'  # thanks to mawk, [:alnum:] cannot be used :(
 xdg_data_home=${XDG_DATA_HOME:-"$HOME"/.local/share}
 xdg_data_dirs=${XDG_DATA_DIRS:-/usr/local/share:/usr/share}
 winebottlehome=${WINEBOTTLEHOME:-"$xdg_data_home"/wineprefixes}
