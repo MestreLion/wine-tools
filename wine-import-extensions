@@ -41,7 +41,7 @@ RESTORE=
 REFRESH=
 LIST=
 OVERWRITE=
-SKIP=
+SKIP=cpl,dll,exe,lnk,msi
 PREFIX=
 UNDO=
 
@@ -188,6 +188,7 @@ Usage ()
 	     Do not import native extension even if there is no registered class or
 	     file handler in wine. Opposite of -o. List must be comma-delimited, EXT
 	     must be the extension without any dots or asterisks. Ex: --skip dll,cpl
+	     Extensions '$SKIP' are always skipped.
 
 	 -G, --no-gui
 	     Instead of the default GUI handler, register an alternate, simpler
@@ -422,7 +423,7 @@ while true ; do
 	-r|--restore    ) RESTORE="$1"  ; shift  ;; # Set restore file
 	-u|--undo       ) UNDO="$1"     ; shift  ;; # Set undo file
 	-o|--overwrite  ) OVERWRITE="$1"; shift  ;; # Set list of exts to overwrite
-	-s|--skip       ) SKIP="$1"     ; shift  ;; # Set list of exts to skip
+	-s|--skip       ) SKIP+=",$1"   ; shift  ;; # Set list of exts to skip
 	-h|--help       ) Usage "HELP"  ; exit   ;; # Help requested
 	--              ) break                  ;;
 	*               ) Usage         ; exit 1 ;;
