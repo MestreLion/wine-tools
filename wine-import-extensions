@@ -275,7 +275,7 @@ SetupExecutable()
 
 	[[ "$RESTORE" || "$UNDO" ]] && return
 
-	winexec="$(wine winepath -w "$executable")"
+	winexec="$(wine winepath -w "$executable" 2>&3)"
 	command="${winexec//\\/\\\\} \\\"%1\\\""
 
 	appname="${executable##*/}"
@@ -378,7 +378,7 @@ Restore()
 	# Force wine to update extensions and mime types
 	rm -f  -- "$xdg_data_home"/mime/packages/x-wine-*
 	update-mime-database "$xdg_data_home"/mime
-	wine winemenubuilder -a -r
+	wine winemenubuilder -a -r 2>&3
 
 	# delete winebrowser-gui.exe
 	rm -f -- "$executable"
@@ -599,7 +599,7 @@ if [[ "$TEST" ]]; then
 else
 	export LC_ALL="$savedlocale"
 	wine regedit "$outputfile" || fatal "Registry changes could not be merged into wine"
-	sleep 3 && wine winemenubuilder -a -r  # force refresh
+	sleep 3 && wine winemenubuilder -a -r 2>&3 # force refresh
 	[[ "$VERBOSE" ]] && echo "Registry changes successfully merged into wine"
 fi
 
