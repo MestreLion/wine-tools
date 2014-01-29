@@ -32,6 +32,7 @@ else
 
 	# shift cd-roms and other block devices to make room for D:
 	if [[ -e "$bottle/dosdevices/d::" ]]; then
+		#FIXME: infinite loop if d: and e: are already taken (ie, USB flash drives)
 		until grep -q '^"d:"=".*"$' "$bottle/system.reg" &&
 		sed -i '/^"d:"=".*"$/d' "$bottle/system.reg"; do : ; done
 
