@@ -361,7 +361,7 @@ CreateTempFile()
 	fi
 
 	# set new file
-	tempfile=$(tempfile) || fatal "could not create temporary file"
+	tempfile=$(mktemp) || fatal "could not create temporary file"
 }
 
 Restore()
