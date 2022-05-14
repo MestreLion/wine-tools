@@ -225,7 +225,9 @@ Usage ()
 	Examples and suggested uses:
 	$SELF --debug --test --bottle test --backup system.reg.bak --list ext.txt
 	$SELF --debug --test --bottle test --savechanges import.reg \\
-	      --overwrite gif,jpg,png,txt --skip cpl,dll,lnk,msi
+	      --overwrite gif,jpg,png,txt --skip cpl,dll,lnk,msi	
+	env PATH=$PATH:/opt/cxoffice/bin WINEBOTTLEHOME=$HOME/.cxoffice \\
+	WINEPREFIX=$HOME/.cxoffice $SELF --bottle TotalCmd
 
 
 	Author: Rodrigo Silva (MestreLion) <linux@rodrigosilva.com>
