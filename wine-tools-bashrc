@@ -19,12 +19,12 @@
 # To use, add these lines to ~/.bashrc:
 #
 #	if [ -d "/path/to/wine-tools" ] ; then
-#	    PATH="$PATH:/path/to/wine-tools"
 #	    source "/path/to/wine-tools/wine-tools-bashrc"
 #	fi
 #
 
 export WINEBOTTLEHOME=${WINEBOTTLEHOME:-"${XDG_DATA_HOME:-"$HOME"/.local/share}"/wineprefixes}
+export PATH=${PATH}:$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")
 
 wine-cd() {
 	local bottle="$1"
