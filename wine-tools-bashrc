@@ -26,7 +26,7 @@
 export WINEBOTTLEHOME=${WINEBOTTLEHOME:-"${XDG_DATA_HOME:-"$HOME"/.local/share}"/wineprefixes}
 
 _wine_here=$(dirname -- "$(realpath -- "${BASH_SOURCE[0]}")")
-if ! [[ "$_wine_here" == *"$PATH"* ]]; then
+if ! [[ "$PATH" == *"$_wine_here"* ]]; then
 	export PATH=${PATH}:${_wine_here}
 fi
 unset _wine_here
